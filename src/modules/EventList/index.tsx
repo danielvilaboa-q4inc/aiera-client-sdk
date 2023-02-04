@@ -793,7 +793,10 @@ export const EventList = ({ useConfigOptions = false }: EventListProps): ReactEl
         query: eventsGQL,
         mergeResults,
         variables: {
-            view: state.company || config.options?.eventListView === 'combined' ? EventView.Recent : state.listType,
+            view:
+                (state.company || config.options?.eventListView === 'combined') && !state.searchTerm
+                    ? EventView.Recent
+                    : state.listType,
             fromIndex: state.fromIndex,
             size: state.pageSize,
             filter: {
