@@ -97,6 +97,7 @@ export interface EventListUIProps {
     onSelectEventById?: ChangeHandler<string>;
     onSelectFilterBy?: ChangeHandler<FilterByType[]>;
     onSelectListType?: ChangeHandler<EventView>;
+    queryStatus: string;
     refetch?: () => void;
     scrollRef: RefObject<HTMLDivElement>;
     searchTerm?: string;
@@ -309,6 +310,7 @@ export const EventListUI = (props: EventListUIProps): ReactElement => {
         onSelectListType,
         onSelectEvent,
         onSelectEventById,
+        queryStatus,
         refetch,
         scrollRef,
         searchTerm,
@@ -439,8 +441,8 @@ export const EventListUI = (props: EventListUIProps): ReactElement => {
                         </FilterBy>
                     </div>
                     <div className={classNames('flex flex-col items-center justify-center flex-1')}>
-                        {match(eventsQuery)
-                            .with({ status: 'loading' }, () => (
+                        {match(queryStatus)
+                            .with('loading', () => (
                                 <ul className="w-full EventList__loading">
                                     {new Array(15).fill(0).map((_, idx) => (
                                         <li key={idx} className="p-2 animate-pulse mx-2">
@@ -462,10 +464,10 @@ export const EventListUI = (props: EventListUIProps): ReactElement => {
                                     ))}
                                 </ul>
                             ))
-                            .with({ status: 'paused' }, () => wrapMsg('There are no events.'))
-                            .with({ status: 'error' }, () => wrapMsg('There was an error loading events.'))
-                            .with({ status: 'empty' }, () => wrapMsg('There are no events.'))
-                            .with({ status: 'success' }, ({ data, isPaging, isRefetching }) => (
+                            .with('paused', () => wrapMsg('There are no events.'))
+                            .with('error', () => wrapMsg('There was an error loading events.'))
+                            .with('empty', () => wrapMsg('There are no events.'))
+                            .with('success', () => (
                                 <ul className="w-full">
                                     {showAllEvents &&
                                         match(eventsQueryUpcoming)
@@ -506,57 +508,67 @@ export const EventListUI = (props: EventListUIProps): ReactElement => {
                                                     })
                                             )
                                             .otherwise(() => null)}
-                                    {data.search.events.hits.map((hit, index) => {
-                                        const eventDate = DateTime.fromISO(hit.event.eventDate);
-                                        let showDivider = false;
-                                        if (
-                                            !prevEventDate ||
-                                            prevEventDate.toFormat('MM/dd/yyyy') !== eventDate.toFormat('MM/dd/yyyy')
-                                        ) {
-                                            prevEventDate = eventDate;
-                                            showDivider = true;
-                                        }
-                                        if (index > 0 && !renderedRefetch) {
-                                            renderedRefetch = true;
-                                        }
-                                        return (
-                                            <EventRow
-                                                customOnly={customOnly}
-                                                event={hit.event}
-                                                index={index}
-                                                isRefetching={isRefetching}
-                                                key={`${hit.event.id}-${index}`}
-                                                maxHits={maxHits}
-                                                numMentions={hit.numMentions}
-                                                onSelectEvent={onSelectEvent}
-                                                refetch={refetch}
-                                                renderedRefetch={renderedRefetch}
-                                                searchTerm={searchTerm}
-                                                setFocus={setFocus}
-                                                showDivider={showDivider}
-                                            />
-                                        );
-                                    })}
-                                    {loadMore && (
-                                        <li className="px-3 cursor-pointer" onClick={!isPaging ? loadMore : undefined}>
-                                            <div className="px-1 py-2 backdrop-filter backdrop-blur-sm bg-white bg-opacity-70 flex rounded-lg items-center text-sm whitespace-nowrap text-gray-500 font-semibold dark:bg-bluegray-7 dark:bg-opacity-70">
-                                                <div className="mr-2 flex-1 h-[1px] bg-gradient-to-l from-gray-200 dark:from-bluegray-5"></div>
-                                                {isPaging ? (
-                                                    <div className="flex justify-center items-center group h-[15px]">
-                                                        <div className="w-1 h-1 bg-gray-400 group-hover:bg-gray-500 rounded-full animate-bounce animation" />
-                                                        <div className="w-1 h-1 ml-1 bg-gray-400 group-hover:bg-gray-500 rounded-full animate-bounce animation-delay-100" />
-                                                        <div className="w-1 h-1 ml-1 bg-gray-400 group-hover:bg-gray-500 rounded-full animate-bounce animation-delay-200" />
-                                                    </div>
-                                                ) : (
-                                                    'Load more'
+                                    {match(eventsQuery)
+                                        .with({ status: 'success' }, ({ data, isPaging, isRefetching }) => (
+                                            <>
+                                                {data.search.events.hits.map((hit, index) => {
+                                                    const eventDate = DateTime.fromISO(hit.event.eventDate);
+                                                    let showDivider = false;
+                                                    if (
+                                                        !prevEventDate ||
+                                                        prevEventDate.toFormat('MM/dd/yyyy') !==
+                                                            eventDate.toFormat('MM/dd/yyyy')
+                                                    ) {
+                                                        prevEventDate = eventDate;
+                                                        showDivider = true;
+                                                    }
+                                                    if (index > 0 && !renderedRefetch) {
+                                                        renderedRefetch = true;
+                                                    }
+                                                    return (
+                                                        <EventRow
+                                                            customOnly={customOnly}
+                                                            event={hit.event}
+                                                            index={index}
+                                                            isRefetching={isRefetching}
+                                                            key={`${hit.event.id}-${index}`}
+                                                            maxHits={maxHits}
+                                                            numMentions={hit.numMentions}
+                                                            onSelectEvent={onSelectEvent}
+                                                            refetch={refetch}
+                                                            renderedRefetch={renderedRefetch}
+                                                            searchTerm={searchTerm}
+                                                            setFocus={setFocus}
+                                                            showDivider={showDivider}
+                                                        />
+                                                    );
+                                                })}
+                                                {loadMore && (
+                                                    <li
+                                                        className="px-3 cursor-pointer"
+                                                        onClick={!isPaging ? loadMore : undefined}
+                                                    >
+                                                        <div className="px-1 py-2 backdrop-filter backdrop-blur-sm bg-white bg-opacity-70 flex rounded-lg items-center text-sm whitespace-nowrap text-gray-500 font-semibold dark:bg-bluegray-7 dark:bg-opacity-70">
+                                                            <div className="mr-2 flex-1 h-[1px] bg-gradient-to-l from-gray-200 dark:from-bluegray-5"></div>
+                                                            {isPaging ? (
+                                                                <div className="flex justify-center items-center group h-[15px]">
+                                                                    <div className="w-1 h-1 bg-gray-400 group-hover:bg-gray-500 rounded-full animate-bounce animation" />
+                                                                    <div className="w-1 h-1 ml-1 bg-gray-400 group-hover:bg-gray-500 rounded-full animate-bounce animation-delay-100" />
+                                                                    <div className="w-1 h-1 ml-1 bg-gray-400 group-hover:bg-gray-500 rounded-full animate-bounce animation-delay-200" />
+                                                                </div>
+                                                            ) : (
+                                                                'Load more'
+                                                            )}
+                                                            <div className="ml-2 flex-1 h-[1px] bg-gradient-to-r from-gray-200 dark:from-bluegray-5"></div>
+                                                        </div>
+                                                    </li>
                                                 )}
-                                                <div className="ml-2 flex-1 h-[1px] bg-gradient-to-r from-gray-200 dark:from-bluegray-5"></div>
-                                            </div>
-                                        </li>
-                                    )}
+                                            </>
+                                        ))
+                                        .otherwise(() => null)}
                                 </ul>
                             ))
-                            .exhaustive()}
+                            .otherwise(() => null)}
                         <div className="flex-1" />
                     </div>
                 </div>
@@ -725,8 +737,8 @@ export const EventList = ({ useConfigOptions = false }: EventListProps): ReactEl
         if (state.fromIndex) mergeState({ fromIndex: 0 });
     }, [state.listType, state.listType, state.company, state.filterByTypes, state.searchTerm, state.event]);
 
-    const eventsGQL = gql`
-        query EventList($filter: EventSearchFilter!, $view: EventView, $size: Int, $fromIndex: Int) {
+    const eventsGQL = (type = '') => gql`
+        query EventList${type}($filter: EventSearchFilter!, $view: EventView, $size: Int, $fromIndex: Int) {
             search {
                 events(filter: $filter, view: $view, fromIndex: $fromIndex, size: $size) {
                     id
@@ -790,13 +802,10 @@ export const EventList = ({ useConfigOptions = false }: EventListProps): ReactEl
     const eventsQuery = usePagingQuery<EventListQuery, EventListQueryVariables>({
         isEmpty: (data) => data.search.events.numTotalHits === 0,
         requestPolicy: 'cache-and-network',
-        query: eventsGQL,
+        query: eventsGQL(),
         mergeResults,
         variables: {
-            view:
-                (state.company || config.options?.eventListView === 'combined') && !state.searchTerm
-                    ? EventView.Recent
-                    : state.listType,
+            view: state.company || config.options?.eventListView === 'combined' ? EventView.Recent : state.listType,
             fromIndex: state.fromIndex,
             size: state.pageSize,
             filter: {
@@ -815,7 +824,7 @@ export const EventList = ({ useConfigOptions = false }: EventListProps): ReactEl
     const eventsQueryUpcoming = usePagingQuery<EventListQuery, EventListQueryVariables>({
         isEmpty: (data) => data.search.events.numTotalHits === 0,
         requestPolicy: 'cache-and-network',
-        query: eventsGQL,
+        query: eventsGQL('Upcoming'),
         mergeResults,
         variables: {
             view: EventView.LiveAndUpcoming,
@@ -833,6 +842,26 @@ export const EventList = ({ useConfigOptions = false }: EventListProps): ReactEl
             },
         },
     });
+
+    const queryStatus = useMemo(() => {
+        let status = '';
+        if (eventsQuery.status === 'empty' && eventsQueryUpcoming.status === 'empty') {
+            status = 'empty';
+        }
+        if (eventsQuery.status === 'error' || eventsQueryUpcoming.status === 'error') {
+            status = 'error';
+        }
+        if (eventsQuery.status === 'loading' || eventsQueryUpcoming.status === 'loading') {
+            status = 'loading';
+        }
+        if (eventsQuery.status === 'paused' && eventsQueryUpcoming.status === 'paused') {
+            status = 'paused';
+        }
+        if (eventsQuery.status === 'success' || eventsQueryUpcoming.status === 'success') {
+            status = 'success';
+        }
+        return status;
+    }, [eventsQuery, eventsQueryUpcoming]);
 
     const userQuery = useQuery<EventListCurrentUserQuery>({
         requestPolicy: 'cache-only',
@@ -894,8 +923,8 @@ export const EventList = ({ useConfigOptions = false }: EventListProps): ReactEl
         if (!hasPaged) eventsQuery.refetch();
     }, [eventsQuery.refetch, state.fromIndex]);
 
-    // Refresh every 15 seconds, but only if the user is at the top of the list,
-    // if they are on another page we dont want to wipe out their results.
+    // Refresh every 15 seconds, but only if the user is at the top of the list
+    // If they are on another page we don't want to wipe out their results
     useInterval(() => {
         if ((scrollRef.current?.scrollTop || 0) <= 10) {
             refetch();
@@ -964,6 +993,7 @@ export const EventList = ({ useConfigOptions = false }: EventListProps): ReactEl
             onSelectEventById={onSelectEventById}
             onSelectFilterBy={handlers.filterByTypes}
             onSelectListType={handlers.listType}
+            queryStatus={queryStatus}
             refetch={refetch}
             scrollRef={scrollRef}
             searchTerm={state.searchTerm}
