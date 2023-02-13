@@ -26,6 +26,12 @@ module.exports = {
                 '3xl-dark': '0px 1px 2px rgba(0, 0, 0, 0.18), 0px 12px 24px rgba(0, 0, 0, 0.13)',
             },
             colors: {
+                primary: {
+                    DEFAULT: '#0F5CA3',
+                },
+                q4: {
+                    DEFAULT: '#0F5CA3',
+                },
                 bluegray: {
                     1: '#647DA1',
                     2: '#576F93',

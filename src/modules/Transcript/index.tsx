@@ -206,7 +206,7 @@ export const TranscriptUI = (props: TranscriptUIProps): ReactElement => {
                     </div>
                 ))
                 .otherwise(() => null)}
-            <div className="overflow-y-scroll flex-1 bg-gray-50 dark:bg-bluegray-7" ref={scrollContainerRef}>
+            <div className="overflow-y-scroll flex-1 bg-gray-50 dark:bg-white" ref={scrollContainerRef}>
                 {match(eventQuery)
                     .with({ status: 'loading' }, () =>
                         new Array(5).fill(0).map((_, idx) => (
@@ -230,7 +230,7 @@ export const TranscriptUI = (props: TranscriptUIProps): ReactElement => {
                             return (
                                 <div key={`speaker-turn-${id}`}>
                                     {showSpeakers && speaker.identified && (
-                                        <div className="p-3 pb-2 truncate text-sm -mb-3 sticky top-0 z-10 bg-gray-50 dark:bg-bluegray-7 dark:text-gray-400">
+                                        <div className="p-3 pb-2 truncate text-sm -mb-3 sticky top-0 z-10 bg-gray-50 dark:bg-bluegray-7 dark:text-primary">
                                             <div>
                                                 <span className="font-semibold dark:text-white">{speaker.name}</span>
                                                 {speaker.title && (
@@ -238,7 +238,7 @@ export const TranscriptUI = (props: TranscriptUIProps): ReactElement => {
                                                 )}
                                             </div>
                                             {speakerTime && (
-                                                <div className="text-xs dark:text-bluegray-4 dark:text-opacity-50">
+                                                <div className="text-xs dark:text-primary dark:text-opacity-50">
                                                     {DateTime.fromISO(speakerTime).toFormat('h:mm:ss a')}
                                                 </div>
                                             )}
@@ -255,11 +255,11 @@ export const TranscriptUI = (props: TranscriptUIProps): ReactElement => {
                                                 ref={id === currentParagraph ? currentParagraphRef : undefined}
                                             >
                                                 {(!showSpeakers || !speaker.identified) && timestamp && (
-                                                    <div className="pb-2 font-semibold text-sm dark:text-bluegray-4 dark:text-opacity-50">
+                                                    <div className="pb-2 font-semibold text-sm dark:text-primary dark:text-opacity-50">
                                                         {DateTime.fromISO(timestamp).toFormat('h:mm:ss a')}
                                                     </div>
                                                 )}
-                                                <div className="text-sm dark:text-bluegray-4">
+                                                <div className="text-sm dark:text-primary text-primary">
                                                     {sentences.map(({ chunks, id: sId }) => (
                                                         <Fragment key={sId}>
                                                             {chunks.map(
@@ -306,14 +306,14 @@ export const TranscriptUI = (props: TranscriptUIProps): ReactElement => {
                                     {data.events[0]?.isLive && partial?.text && (
                                         <div className="relative p-3 pb-4 mb-4">
                                             {partial.timestamp && (
-                                                <div className="pb-2 font-semibold text-sm dark:text-bluegray-5">
+                                                <div className="pb-2 font-semibold text-sm dark:text-primary">
                                                     {DateTime.fromMillis(partial.timestamp).toFormat('h:mm:ss a')}
                                                 </div>
                                             )}
                                             <div
                                                 ref={currentParagraph === 'partial' ? currentParagraphRef : undefined}
                                                 key={`${hash(partial.text)}-${paragraphs.length}`}
-                                                className="text-sm dark:text-bluegray-4"
+                                                className="text-sm dark:text-primary-4"
                                             >
                                                 {partial.text}
                                             </div>
