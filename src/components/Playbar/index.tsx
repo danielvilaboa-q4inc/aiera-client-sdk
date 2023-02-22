@@ -251,7 +251,7 @@ export function PlaybarUI(props: PlaybarUIProps): ReactElement {
                         openOn="click"
                         position="top-right"
                     >
-                        <button className="text-yellow-500 px-2 hover:text-yellow-600 active:text-yellow-800 cursor-pointer">
+                        <button className="text-q4-500 px-2 hover:text-q4-600 active:text-q4-800 cursor-pointer">
                             {volume > 0.6 ? (
                                 <SpeakerLoud className="w-[18px]" />
                             ) : volume === 0 ? (
